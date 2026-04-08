@@ -7,115 +7,132 @@
   <style>
     :root {
       --bg: #0b0f0d;
+      --term-bg: #0d110f;
       --green: #8cff00;
       --cyan: #6ee7ff;
       --text: #d1f7c4;
-      --muted: #7aa97c;
+      --muted: #5a7d5c;
       --line: #1f3b23;
-      --s1-color: #8cff00;
-      --s2-color: #ffde00;
-      --s3-color: #ff3c70;
-      --s4-color: #4cdfff;
+      --s1: #8cff00; --s2: #ffde00; --s3: #ff3c70;
     }
 
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      background: radial-gradient(1200px 600px at 20% -10%, #132418 0%, var(--bg) 45%);
+      background-color: var(--bg);
+      background-image: radial-gradient(circle at 20% 20%, #1a2e20 0%, var(--bg) 50%);
       color: var(--text);
-      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-family: 'Cascadia Code', 'Fira Code', ui-monospace, monospace;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
     }
 
-    .wrap { max-width: 1100px; margin: auto; padding: 28px 20px 80px; }
-
-    .top {
-      background: linear-gradient(180deg, #0f1512, #0b0f0d);
+    .terminal {
+      width: 100%;
+      max-width: 900px;
+      background: var(--term-bg);
       border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 28px;
-      margin-bottom: 28px;
+      border-radius: 8px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+      overflow: hidden;
     }
 
-    .prompt { font-size: 28px; color: var(--green); font-weight: 700; }
-
-    /* --- Interactive Button Styling --- */
-    .section-btn {
+    .term-header {
+      background: #1a201c;
+      padding: 10px 15px;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      border: 1px solid #3c4043;
-      border-radius: 100px;
-      padding: 12px 30px;
-      font-size: 18px;
-      font-weight: 600;
-      background: #17191d;
-      cursor: pointer; /* Shows it's clickable */
-      transition: 0.3s;
-      width: 100%;
-      margin: 20px 0;
-      outline: none;
+      border-bottom: 1px solid var(--line);
     }
+    .dots { display: flex; gap: 6px; margin-right: 15px; }
+    .dot { width: 12px; height: 12px; border-radius: 50%; }
+    .red { background: #ff5f56; } .amber { background: #ffbd2e; } .green-dot { background: #27c93f; }
+    .term-title { font-size: 13px; color: var(--muted); flex-grow: 1; text-align: center; }
 
-    .section-btn:hover { transform: scale(1.01); filter: brightness(1.2); }
+    .content-wrap { padding: 30px; }
 
-    /* The Chevron Animation */
-    .chevron { transition: transform 0.3s ease; font-size: 12px; }
-    .active .chevron { transform: rotate(180deg); }
+    .top-prompt { margin-bottom: 30px; border-bottom: 1px dashed var(--line); padding-bottom: 20px; }
+    .prompt-text { font-size: 24px; color: var(--green); font-weight: bold; }
 
-    /* --- Collapsible Content Logic --- */
-    .content {
+    .cmd-line { display: flex; gap: 10px; color: var(--green); margin-bottom: 10px; font-weight: bold; }
+    .cmd-line::before { content: "➜"; }
+
+    .kv-grid { display: grid; grid-template-columns: 140px 1fr; gap: 5px; margin: 15px 0 30px 20px; font-size: 15px; }
+    .key { color: var(--cyan); }
+
+    .section-btn {
+      width: 100%;
+      background: #131a16;
+      border: 1px solid #3c4043;
+      border-radius: 50px;
+      padding: 14px 25px;
+      color: inherit;
+      font-family: inherit;
+      font-size: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: 0.3s;
+      margin: 15px 0;
+    }
+    .section-btn:hover { background: #1a241e; border-color: var(--text); }
+    .chevron { transition: transform 0.3s ease; font-size: 10px; opacity: 0.5; }
+    .active .chevron { transform: rotate(180deg); opacity: 1; }
+
+    .section-content {
       max-height: 0;
       overflow: hidden;
-      transition: max-height 0.3s ease-out, padding 0.3s ease;
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: 15px;
-      padding: 0 30px;
+      transition: max-height 0.4s cubic-bezier(0, 1, 0, 1);
+      padding: 0 25px;
+      border-left: 2px solid var(--line);
+      margin-left: 20px;
     }
+    .active + .section-content { max-height: 1000px; padding: 10px 25px 20px; }
 
-    .active + .content {
-      max-height: 500px; /* Adjust if content is very long */
-      padding: 20px 30px;
-      border: 1px solid var(--line);
-    }
+    ul { list-style: none; padding: 0; margin: 0; }
+    li { margin-bottom: 8px; position: relative; padding-left: 25px; line-height: 1.5; }
+    li::before { content: "⊡"; position: absolute; left: 0; color: var(--muted); }
 
-    /* Colors */
-    .core-skills .section-btn { border-color: var(--s1-color); color: var(--s1-color); }
-    .experience .section-btn { border-color: var(--s2-color); color: var(--s2-color); }
-    .certs .section-btn { border-color: var(--s3-color); color: var(--s3-color); }
-    .platforms .section-btn { border-color: var(--s4-color); color: var(--s4-color); }
+    .core .section-btn { border-left: 4px solid var(--s1); }
+    .exp .section-btn { border-left: 4px solid var(--s2); }
+    .cert .section-btn { border-left: 4px solid var(--s3); }
 
-    .cmd { color: var(--green); margin-bottom: 8px;}
-    .footer { text-align: center; color: var(--muted); margin-top: 60px; font-size: 14px; }
+    .footer { text-align: center; padding: 40px; color: var(--muted); font-size: 12px; }
   </style>
 </head>
 <body>
-  <div class="wrap">
 
-    <section class="top">
-      <div class="prompt">./ CyberSldr:~#</div>
-      <div class="subtitle" style="color:var(--muted)">Cybersecurity • Ethical Hacking • Defense Operations</div>
-    </section>
+<div class="terminal">
+  <div class="term-header">
+    <div class="dots"><div class="dot red"></div><div class="dot amber"></div><div class="dot green-dot"></div></div>
+    <div class="term-title">bash — 80x24</div>
+  </div>
 
+  <div class="content-wrap">
+    <div class="top-prompt">
+      <div class="prompt-text">./CyberSldr:~#</div>
+      <div class="key" style="margin-top:5px; font-size:14px">Cybersecurity • Ethical Hacking • Defense Operations</div>
+    </div>
 
-    <section class="section whoami">
-      <div class="body">
-        <div class="cmd">CyberSldr:~# whoami</div>
-         <p style="line-height:1.6"><b>Toluwalope Adeleke</b>: A cybersecurity professional specializing in VAPT and incident response within military and freelance environments.</p>
-        <div class="kv">
-          <div class="key">&gt;&gt; Name</div><div class="val">Toluwalope Adeleke</div>
-          <div class="key">&gt;&gt; Alias</div><div class="val">CyberSldr</div>
-          <div class="key">&gt;&gt; Role</div><div class="val">Cybersecurity Professional / Ethical Hacker</div>
-          <div class="key">&gt;&gt; Location</div><div class="val">Abuja, Nigeria</div>
-          <div class="key">&gt;&gt; Expertise</div><div class="val">Penetration Testing, Vulnerability Assessment, Incident Response</div>
-        </div>
-      </div>
-    </section>
+    <div class="cmd-line">whoami</div>
+    <p style="margin-left: 20px; color: var(--text); opacity: 0.9;">
+      <b>Toluwalope Adeleke</b>: A cybersecurity professional specializing in VAPT and incident response within military, institutional, and freelance environments.
+    </p>
+    
+    <div class="kv-grid">
+      <div class="key">[Alias]</div><div class="val">CyberSldr</div>
+      <div class="key">[Role]</div><div class="val">Cybersecurity Professional / Ethical Hacker</div>
+      <div class="key">[Location]</div><div class="val">Abuja, Nigeria</div>
+      <div class="key">[Expertise]</div><div class="val">Penetration Testing, Vulnerability Assessment, Incident Response</div>
+    </div>
 
-    <div class="section core-skills">
+    <div class="section core">
       <button class="section-btn">Core Skills <span class="chevron">▼</span></button>
-      <div class="content">
+      <div class="section-content">
         <ul>
-         <li>Operating Systems: Windows, Linux</li>
+          <li>Operating Systems: Windows, Linux</li>
           <li>Networking: TCP/IP, DNS, DHCP</li>
           <li>Security Testing: Web, Network, Infrastructure VAPT</li>
           <li>Tools: Kali Linux, Metasploit, Burp Suite, Wireshark, SIEM</li>
@@ -124,9 +141,9 @@
       </div>
     </div>
 
-    <div class="section experience">
+    <div class="section exp">
       <button class="section-btn">Experience Snapshot <span class="chevron">▼</span></button>
-      <div class="content">
+      <div class="section-content">
         <ul>
           <li><b>Cybersecurity Instructor</b> — NACWS (2025–Present)</li>
           <li><b>Cybersecurity Analyst</b> — NACWC (2018–2025)</li>
@@ -135,13 +152,13 @@
       </div>
     </div>
 
-    <div class="section certs">
+    <div class="section cert">
       <button class="section-btn">Certifications <span class="chevron">▼</span></button>
-      <div class="content">
+      <div class="section-content">
         <ul>
           <li>Certified Ethical Hacker (CEH) Master</li>
-          <li>Certifed Network Defender (CND)</li>
-          <li>Certifed Security Analyst (CSA) </li>
+          <li>Certified Network Defender (CND)</li>
+          <li>Certified Security Analyst (CSA)</li>
           <li>Certified Incident Handler (ECIH)</li>
           <li>Certified Network Security Specialist (CNSS)</li>
           <li>EC‑Council Cyber Mentor</li>
@@ -150,17 +167,22 @@
       </div>
     </div>
 
-    <div class="footer">© <span id="y"></span> Toluwalope Adeleke</div>
+    <div class="cmd-line">exit</div>
   </div>
 
-  <script>
-    // Logic to toggle the "active" class and handle the animation
-    document.querySelectorAll('.section-btn').forEach(button => {
-      button.addEventListener('click', () => {
-        button.classList.toggle('active');
-      });
+  <div class="footer">
+    Connection closed. System standby. © <span id="y"></span> Toluwalope Adeleke
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.section-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      button.classList.toggle('active');
     });
-    document.getElementById('y').textContent = new Date().getFullYear();
-  </script>
+  });
+  document.getElementById('y').textContent = new Date().getFullYear();
+</script>
+
 </body>
 </html>
